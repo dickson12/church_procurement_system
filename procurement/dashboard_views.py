@@ -53,10 +53,10 @@ class DashboardView(LoginRequiredMixin, TemplateView):
         
         # Top suppliers (keep limited to top 10)
         context['top_suppliers'] = SupplierPerformance.objects.values(
-            'supplier'
+            'supplier_name'
         ).annotate(
-            avg_score=Avg('score')
-        ).order_by('-avg_score')[:10]
+            avg_rating=Avg('rating')
+        ).order_by('-avg_rating')[:10]
         
         # Statistics
         context['stats'] = {

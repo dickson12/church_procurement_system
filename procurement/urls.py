@@ -22,6 +22,10 @@ urlpatterns = [
     # User Profile
     path('profile/', UserProfileView.as_view(), name='profile'),
     
+    # Export functionality
+    path('export/requests/csv/', dashboard_views.export_purchase_requests_csv, name='export_requests_csv'),
+    path('export/supplier-performance/pdf/', dashboard_views.export_supplier_performance_pdf, name='export_supplier_performance_pdf'),
+    
     # Purchase Requests
     path('requests/', PurchaseRequestListView.as_view(), name='request_list'),
     path('requests/new/', PurchaseRequestCreateView.as_view(), name='request_create'),

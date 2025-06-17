@@ -102,8 +102,7 @@
 
         <!-- Asset Status Card -->
         <div class="col-xl-4 col-lg-5">
-            {% if asset.status == 'CHECKED_OUT' and asset.assetcheckout_set.exists %}
-            {% with current_checkout=asset.assetcheckout_set.latest %}
+            {% if current_checkout %}
             <div class="card shadow mb-4">
                 <div class="card-header py-3">
                     <h6 class="m-0 font-weight-bold text-warning">Currently Checked Out</h6>
@@ -112,8 +111,12 @@
                     <div class="table-responsive">
                         <table class="table">
                             <tr>
-                                <th>Checked Out By</th>
-                                <td>{{ current_checkout.checked_out_by }}</td>
+                                <th>Checked Out To</th>
+                                <td>{{ current_checkout.checked_out_to_name }}</td>
+                            </tr>
+                            <tr>
+                                <th>Phone</th>
+                                <td>{{ current_checkout.checked_out_to_phone }}</td>
                             </tr>
                             <tr>
                                 <th>Department</th>
@@ -127,6 +130,16 @@
                                 <th>Expected Return</th>
                                 <td>{{ current_checkout.expected_return_date }}</td>
                             </tr>
+                            <tr>
+                                <th>Purpose</th>
+                                <td>{{ current_checkout.purpose }}</td>
+                            </tr>
+                            {% if current_checkout.checkout_notes %}
+                            <tr>
+                                <th>Notes</th>
+                                <td>{{ current_checkout.checkout_notes }}</td>
+                            </tr>
+                            {% endif %}
                         </table>
                     </div>
                     <div class="text-center mt-3">
@@ -136,7 +149,6 @@
                     </div>
                 </div>
             </div>
-            {% endwith %}
             {% endif %}
         </div>
     </div>

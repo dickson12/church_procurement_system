@@ -17,9 +17,9 @@ class AssetCategoryAdmin(admin.ModelAdmin):
 
 @admin.register(AssetCheckout)
 class AssetCheckoutAdmin(admin.ModelAdmin):
-    list_display = ('asset', 'checked_out_to', 'checked_out_date', 'expected_return_date', 'actual_return_date')
-    list_filter = ('checked_out_date', 'expected_return_date', 'actual_return_date')
-    search_fields = ('asset__name', 'checked_out_to', 'purpose')
+    list_display = ('asset', 'checked_out_to_name', 'department', 'checked_out_date', 'expected_return_date', 'actual_return_date')
+    list_filter = ('checked_out_date', 'expected_return_date', 'actual_return_date', 'department')
+    search_fields = ('asset__name', 'checked_out_to_name', 'checked_out_to_phone', 'department', 'purpose')
 
 @admin.register(MaintenanceRecord)
 class MaintenanceRecordAdmin(admin.ModelAdmin):

@@ -192,7 +192,7 @@
             <div class="card shadow mb-4">
                 <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
                     <h6 class="m-0 font-weight-bold text-primary">Top Suppliers</h6>
-                    <a href="{% url 'procurement:supplier_performance_pdf' %}" class="btn btn-sm btn-primary">Export PDF</a>
+                    <a href="{% url 'procurement:export_supplier_performance_pdf' %}" class="btn btn-sm btn-primary">Export PDF</a>
                 </div>
                 <div class="card-body">
                     <div class="table-responsive">
@@ -200,14 +200,14 @@
                             <thead>
                                 <tr>
                                     <th>Supplier</th>
-                                    <th>Score</th>
+                                    <th>Rating</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {% for supplier in top_suppliers %}
                                 <tr>
-                                    <td>{{ supplier.supplier }}</td>
-                                    <td>{{ supplier.avg_score|floatformat:2 }}</td>
+                                    <td>{{ supplier.supplier_name }}</td>
+                                    <td>{{ supplier.avg_rating|floatformat:2 }}/5</td>
                                 </tr>
                                 {% empty %}
                                 <tr>

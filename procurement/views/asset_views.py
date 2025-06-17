@@ -41,8 +41,22 @@ class AssetDetailView(LoginRequiredMixin, DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        
+        # Get all checkouts ordered by date
         context['checkouts'] = self.object.assetcheckout_set.all().order_by('-checked_out_date')
+        
+        # Get maintenance records
         context['maintenance_records'] = self.object.maintenancerecord_set.all().order_by('-maintenance_date')
+        
+        # Get current checkout if asset is checked out
+        if self.object.status == 'CHECKED_OUT':
+            try:
+                context['current_checkout'] = self.object.assetcheckout_set.filter(
+                    actual_return_date__isnull=True
+                ).latest('checked_out_date')
+            except AssetCheckout.DoesNotExist:
+                context['current_checkout'] = None
+        
         return context
 
 class AssetUpdateView(LoginRequiredMixin, UpdateView):
@@ -58,15 +72,28 @@ class AssetCheckoutView(LoginRequiredMixin, CreateView):
     form_class = AssetCheckoutForm
     template_name = 'procurement/asset/asset_checkout.html'
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['asset'] = self.get_asset()
+        return context
+
+    def get_asset(self):
+        return get_object_or_404(Asset, pk=self.kwargs['pk'])
+
     def form_valid(self, form):
         checkout = form.save(commit=False)
-        asset = checkout.asset
+        checkout.asset = self.get_asset()
+        checkout.checked_out_to = self.request.user.username
         
-        # Update asset status
-        asset.status = 'CHECKED_OUT'
-        asset.save()
+        if checkout.asset.status != 'AVAILABLE':
+            messages.error(self.request, 'This asset is not available for checkout')
+            return self.form_invalid(form)
+
+        # Update asset status and save checkout
+        checkout.asset.status = 'CHECKED_OUT'
+        checkout.asset.save()
+        messages.success(self.request, f'Asset {checkout.asset.name} has been checked out successfully!')
         
-        messages.success(self.request, f'Asset {asset.name} has been checked out successfully!')
         return super().form_valid(form)
 
     def get_success_url(self):

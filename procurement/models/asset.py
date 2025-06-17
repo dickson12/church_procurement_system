@@ -48,28 +48,24 @@ class Asset(models.Model):
 
 class AssetCheckout(models.Model):
     asset = models.ForeignKey(Asset, on_delete=models.PROTECT)
-    checked_out_to = models.CharField(max_length=100)
-    checked_out_date = models.DateTimeField(auto_now_add=True)
-    expected_return_date = models.DateTimeField()
-    actual_return_date = models.DateTimeField(null=True, blank=True)
-    purpose = models.TextField()
-    notes = models.TextField(blank=True)
-    
-    def __str__(self):
-        return f"{self.asset.name} - {self.checked_out_to} - {self.checked_out_date}"
-    checked_out_by = models.CharField(max_length=100)
+    # Person checking out the asset
+    checked_out_to_name = models.CharField(max_length=100)
+    checked_out_to_phone = models.CharField(max_length=20)
     department = models.CharField(max_length=100)
+    # Checkout details
     purpose = models.TextField()
     checked_out_date = models.DateTimeField(default=timezone.now)
     expected_return_date = models.DateTimeField()
     actual_return_date = models.DateTimeField(null=True, blank=True)
+    # Condition tracking
     condition_at_checkout = models.CharField(max_length=20, choices=Asset.CONDITION_CHOICES)
     condition_at_return = models.CharField(max_length=20, choices=Asset.CONDITION_CHOICES, null=True, blank=True)
+    # Notes
     checkout_notes = models.TextField(blank=True)
     return_notes = models.TextField(blank=True)
     
     def __str__(self):
-        return f"{self.asset} - {self.checked_out_by} - {self.checked_out_date.date()}"
+        return f"{self.asset} - {self.checked_out_to_name} - {self.checked_out_date.date()}"
 
     def is_overdue(self):
         if not self.actual_return_date and timezone.now() > self.expected_return_date:

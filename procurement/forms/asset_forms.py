@@ -50,22 +50,57 @@ class AssetForm(forms.ModelForm):
 class AssetCheckoutForm(forms.ModelForm):
     class Meta:
         model = AssetCheckout
-        fields = ['asset', 'checked_out_by', 'department', 'purpose', 
-                 'expected_return_date', 'condition_at_checkout', 'checkout_notes']
+        fields = [
+            'checked_out_to_name', 'checked_out_to_phone', 'department',
+            'purpose', 'expected_return_date', 'condition_at_checkout',
+            'checkout_notes'
+        ]
         widgets = {
-            'asset': forms.Select(attrs={'class': 'form-select'}),
-            'checked_out_by': forms.TextInput(attrs={'class': 'form-control'}),
-            'department': forms.TextInput(attrs={'class': 'form-control'}),
-            'purpose': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
-            'expected_return_date': forms.DateTimeInput(attrs={'class': 'form-control', 'type': 'datetime-local'}),
-            'condition_at_checkout': forms.Select(attrs={'class': 'form-select'}),
-            'checkout_notes': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
+            'checked_out_to_name': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Full name of the person taking the asset'
+            }),
+            'checked_out_to_phone': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Phone number'
+            }),
+            'department': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Department or ministry'
+            }),
+            'purpose': forms.Textarea(attrs={
+                'class': 'form-control',
+                'rows': 3,
+                'placeholder': 'Describe the purpose of checking out this asset'
+            }),
+            'expected_return_date': forms.DateTimeInput(attrs={
+                'class': 'form-control',
+                'type': 'datetime-local',
+                'min': timezone.localtime().strftime('%Y-%m-%dT%H:%M')
+            }),
+            'condition_at_checkout': forms.Select(attrs={
+                'class': 'form-select'
+            }),
+            'checkout_notes': forms.Textarea(attrs={
+                'class': 'form-control',
+                'rows': 2,
+                'placeholder': 'Any additional notes about the checkout'
+            })
         }
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        # Only show available assets in the dropdown
-        self.fields['asset'].queryset = Asset.objects.filter(status='AVAILABLE')
+    def clean_expected_return_date(self):
+        expected_return_date = self.cleaned_data.get('expected_return_date')
+        if expected_return_date and timezone.localtime(expected_return_date) < timezone.localtime():
+            raise forms.ValidationError('Expected return date cannot be in the past')
+        return expected_return_date
+
+    def clean_checked_out_to_phone(self):
+        phone = self.cleaned_data.get('checked_out_to_phone')
+        # Remove any non-digit characters
+        cleaned_phone = ''.join(filter(str.isdigit, phone))
+        if len(cleaned_phone) < 10:
+            raise forms.ValidationError('Please enter a valid phone number')
+        return cleaned_phone
 
 class AssetReturnForm(forms.ModelForm):
     class Meta:
