@@ -1,0 +1,121 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Add Quotation</h6>
+                </div>
+                <div class="card-body">
+                    <!-- Purchase Request Info -->
+                    <div class="mb-4">
+                        <h5>Purchase Request Details</h5>
+                        <table class="table">
+                            <tr>
+                                <th style="width: 200px;">Title</th>
+                                <td>{{ form.purchase_request.title }}</td>
+                            </tr>
+                            <tr>
+                                <th>Department</th>
+                                <td>{{ form.purchase_request.department }}</td>
+                            </tr>
+                            <tr>
+                                <th>Requester</th>
+                                <td>{{ form.purchase_request.requester }}</td>
+                            </tr>
+                        </table>
+                    </div>
+
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        
+                        {% if form.errors %}
+                        <div class="alert alert-danger">
+                            <h6 class="mb-0">Please correct the following errors:</h6>
+                            <ul class="mb-0 mt-2">
+                                {% for field in form %}
+                                    {% for error in field.errors %}
+                                        <li>{{ field.label }}: {{ error }}</li>
+                                    {% endfor %}
+                                {% endfor %}
+                                {% for error in form.non_field_errors %}
+                                    <li>{{ error }}</li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                        {% endif %}
+
+                        <div class="mb-3">
+                            <label for="id_supplier_name" class="form-label">Supplier Name</label>
+                            <input type="text" name="supplier_name" id="id_supplier_name" 
+                                   class="form-control {% if form.supplier_name.errors %}is-invalid{% endif %}" 
+                                   required value="{{ form.supplier_name.value|default:'' }}">
+                            {% if form.supplier_name.errors %}
+                            <div class="invalid-feedback">
+                                {{ form.supplier_name.errors|join:", " }}
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="id_price" class="form-label">Price</label>
+                            <div class="input-group">
+                                <span class="input-group-text">$</span>
+                                <input type="number" name="price" id="id_price" step="0.01" min="0"
+                                       class="form-control {% if form.price.errors %}is-invalid{% endif %}" 
+                                       required value="{{ form.price.value|default:'' }}">
+                            </div>
+                            {% if form.price.errors %}
+                            <div class="invalid-feedback">
+                                {{ form.price.errors|join:", " }}
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="id_delivery_terms" class="form-label">Delivery Terms</label>
+                            <textarea name="delivery_terms" id="id_delivery_terms" rows="3"
+                                    class="form-control {% if form.delivery_terms.errors %}is-invalid{% endif %}" 
+                                    required>{{ form.delivery_terms.value|default:'' }}</textarea>
+                            {% if form.delivery_terms.errors %}
+                            <div class="invalid-feedback">
+                                {{ form.delivery_terms.errors|join:", " }}
+                            </div>
+                            {% endif %}
+                            <small class="form-text text-muted">
+                                Include delivery time, shipping terms, and any other relevant information.
+                            </small>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="id_document" class="form-label">Supporting Document</label>
+                            <input type="file" name="document" id="id_document" 
+                                   class="form-control {% if form.document.errors %}is-invalid{% endif %}"
+                                   accept=".pdf,.doc,.docx,.xls,.xlsx,.jpg,.png">
+                            {% if form.document.errors %}
+                            <div class="invalid-feedback">
+                                {{ form.document.errors|join:", " }}
+                            </div>
+                            {% endif %}
+                            <small class="form-text text-muted">
+                                Upload scanned quotation or relevant documents (PDF, Word, Excel, or images).
+                            </small>
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save"></i> Save Quotation
+                            </button>
+                            <a href="{% url 'procurement:request_detail' form.purchase_request.pk %}" class="btn btn-secondary">
+                                <i class="fas fa-times"></i> Cancel
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

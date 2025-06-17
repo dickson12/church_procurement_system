@@ -1,0 +1,241 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row mb-4">
+        <div class="col-lg-8">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Purchase Request Details</h6>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table">
+                            <tr>
+                                <th style="width: 200px;">Title</th>
+                                <td>{{ request.title }}</td>
+                            </tr>
+                            <tr>
+                                <th>Requester</th>
+                                <td>{{ request.requester }}</td>
+                            </tr>
+                            <tr>
+                                <th>Department</th>
+                                <td>{{ request.department }}</td>
+                            </tr>
+                            <tr>
+                                <th>Description</th>
+                                <td>{{ request.description|linebreaks }}</td>
+                            </tr>
+                            <tr>
+                                <th>Status</th>
+                                <td>
+                                    <span class="badge {% if request.status == 'PENDING' %}bg-warning
+                                        {% elif request.status == 'APPROVED' %}bg-success
+                                        {% elif request.status == 'REJECTED' %}bg-danger
+                                        {% elif request.status == 'IN_PROGRESS' %}bg-info
+                                        {% else %}bg-secondary{% endif %}">
+                                        {{ request.get_status_display }}
+                                    </span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>Date Created</th>
+                                <td>{{ request.date_created }}</td>
+                            </tr>
+                            {% if request.approved_by %}
+                            <tr>
+                                <th>Approved By</th>
+                                <td>{{ request.approved_by }}</td>
+                            </tr>
+                            <tr>
+                                <th>Approved Date</th>
+                                <td>{{ request.approved_date }}</td>
+                            </tr>
+                            {% endif %}
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quotations Section -->
+            {% if request.status == 'APPROVED' %}
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                    <h6 class="m-0 font-weight-bold text-primary">Quotations</h6>
+                    <div class="button-group">
+                        {% if not request.purchase_orders.exists and quotations.exists %}
+                            <a href="{% url 'procurement:po_create' request.pk %}" class="btn btn-success btn-sm me-2">
+                                <i class="fas fa-file-invoice"></i> Create Purchase Order
+                            </a>
+                        {% endif %}
+                        <a href="{% url 'procurement:quotation_create' request.pk %}" class="btn btn-primary btn-sm">
+                            <i class="fas fa-plus"></i> Add Quotation
+                        </a>
+                    </div>
+                </div>
+                <div class="card-body">
+                    {% if quotations %}
+                    <div class="table-responsive">
+                        <table class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>Supplier</th>
+                                    <th>Price</th>
+                                    <th>Delivery Terms</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for quotation in quotations %}
+                                <tr>
+                                    <td>{{ quotation.supplier_name }}</td>
+                                    <td>${{ quotation.price }}</td>
+                                    <td>{{ quotation.delivery_terms }}</td>
+                                    <td>
+                                        {% if not request.purchase_orders.exists and request.status == 'QUOTATION_SELECTED' and request.selected_quotation == quotation %}
+                                        <a href="{% url 'procurement:po_create' request.pk %}" class="btn btn-sm btn-success">
+                                            <i class="fas fa-file-invoice"></i> Create PO
+                                        </a>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <p class="text-center">No quotations added yet.</p>
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Purchase Orders Section -->
+            {% if request.purchase_orders.exists %}
+            <div class="card shadow">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Purchase Orders</h6>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>PO Number</th>
+                                    <th>Supplier</th>
+                                    <th>Total Amount</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for po in purchase_orders %}
+                                <tr>
+                                    <td>PO-{{ po.id }}</td>
+                                    <td>{{ po.supplier }}</td>
+                                    <td>${{ po.total_amount }}</td>
+                                    <td>
+                                        <span class="badge {% if po.status == 'PENDING' %}bg-warning
+                                            {% elif po.status == 'APPROVED' %}bg-success
+                                            {% elif po.status == 'DELIVERED' %}bg-info
+                                            {% else %}bg-secondary{% endif %}">
+                                            {{ po.get_status_display }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <a href="{% url 'procurement:po_pdf' po.id %}" class="btn btn-sm btn-secondary" target="_blank">
+                                            <i class="fas fa-file-pdf"></i> View PO
+                                        </a>
+                                        {% if po.status == 'APPROVED' %}
+                                        <a href="{% url 'procurement:grn_create' po.id %}" class="btn btn-sm btn-success">
+                                            <i class="fas fa-box"></i> Receive Goods
+                                        </a>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+        </div>
+
+        <!-- Actions Sidebar -->
+        <div class="col-lg-4">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Actions</h6>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        {% if can_approve and request.status == 'PENDING' %}
+                        <a href="{% url 'procurement:request_approve' request.pk %}" class="btn btn-success">
+                            <i class="fas fa-check"></i> Review Request
+                        </a>
+                        {% endif %}
+
+                        {% if request.status == 'APPROVED' and not request.purchase_order %}
+                        <a href="{% url 'procurement:quotation_create' request.pk %}" class="btn btn-primary">
+                            <i class="fas fa-plus"></i> Add Quotation
+                        </a>
+                        {% endif %}
+
+                        <a href="{% url 'procurement:request_list' %}" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left"></i> Back to List
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            {% if request.purchase_order %}
+            <div class="card shadow">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Purchase Order</h6>
+                </div>
+                <div class="card-body">
+                    <table class="table">
+                        <tr>
+                            <th>PO Number</th>
+                            <td>{{ request.purchase_order.id }}</td>
+                        </tr>
+                        <tr>
+                            <th>Supplier</th>
+                            <td>{{ request.purchase_order.supplier }}</td>
+                        </tr>
+                        <tr>
+                            <th>Amount</th>
+                            <td>${{ request.purchase_order.total_amount }}</td>
+                        </tr>
+                        <tr>
+                            <th>Status</th>
+                            <td>
+                                <span class="badge {% if request.purchase_order.status == 'PENDING' %}bg-warning
+                                    {% elif request.purchase_order.status == 'APPROVED' %}bg-success
+                                    {% elif request.purchase_order.status == 'DELIVERED' %}bg-info
+                                    {% else %}bg-secondary{% endif %}">
+                                    {{ request.purchase_order.get_status_display }}
+                                </span>
+                            </td>
+                        </tr>
+                    </table>
+                    <div class="d-grid gap-2 mt-3">
+                        <a href="{% url 'procurement:po_pdf' request.purchase_order.pk %}" class="btn btn-primary">
+                            <i class="fas fa-download"></i> Download PO
+                        </a>
+                        {% if request.purchase_order.status == 'APPROVED' %}
+                        <a href="{% url 'procurement:grn_create' request.purchase_order.pk %}" class="btn btn-success">
+                            <i class="fas fa-truck"></i> Record Delivery
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

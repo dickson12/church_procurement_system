@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Review Purchase Request</h6>
+                </div>
+                <div class="card-body">
+                    <!-- Request Details -->
+                    <div class="mb-4">
+                        <h5>Request Details</h5>
+                        <table class="table">
+                            <tr>
+                                <th style="width: 200px;">Title</th>
+                                <td>{{ object.title }}</td>
+                            </tr>
+                            <tr>
+                                <th>Requester</th>
+                                <td>{{ object.requester }}</td>
+                            </tr>
+                            <tr>
+                                <th>Department</th>
+                                <td>{{ object.department }}</td>
+                            </tr>
+                            <tr>
+                                <th>Description</th>
+                                <td>{{ object.description|linebreaks }}</td>
+                            </tr>
+                            <tr>
+                                <th>Date Created</th>
+                                <td>{{ object.date_created }}</td>
+                            </tr>
+                        </table>
+                    </div>
+
+                    <!-- Approval Form -->
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label for="id_status" class="form-label">Decision</label>
+                            <select name="status" id="id_status" class="form-select" required onchange="toggleRejectionReason(this.value)">
+                                <option value="">Select a decision</option>
+                                <option value="APPROVED">Approve</option>
+                                <option value="REJECTED">Reject</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3" id="rejectionReasonDiv" style="display: none;">
+                            <label for="rejection_reason" class="form-label">Rejection Reason</label>
+                            <textarea name="rejection_reason" id="rejection_reason" class="form-control" rows="3"></textarea>
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary">
+                                Submit Decision
+                            </button>
+                            <a href="{% url 'procurement:request_detail' object.pk %}" class="btn btn-secondary">
+                                Cancel
+                            </a>
+                        </div>
+
+                        <script>
+                            function toggleRejectionReason(status) {
+                                const rejectionDiv = document.getElementById('rejectionReasonDiv');
+                                const rejectionInput = document.getElementById('rejection_reason');
+                                if (status === 'REJECTED') {
+                                    rejectionDiv.style.display = 'block';
+                                    rejectionInput.required = true;
+                                } else {
+                                    rejectionDiv.style.display = 'none';
+                                    rejectionInput.required = false;
+                                }
+                            }
+                        </script>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

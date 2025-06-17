@@ -1,0 +1,51 @@
+{% if requests %}
+<div class="table-responsive">
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Title</th>
+                <th>Requester</th>
+                <th>Department</th>
+                <th>Date Created</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for request in requests %}
+            <tr>
+                <td>
+                    <a href="{% url 'procurement:request_detail' request.pk %}">{{ request.title }}</a>
+                </td>
+                <td>{{ request.requester }}</td>
+                <td>{{ request.department }}</td>
+                <td>{{ request.date_created|date:"Y-m-d" }}</td>
+                <td>
+                    <div class="btn-group" role="group">
+                        <a href="{% url 'procurement:request_detail' request.pk %}" class="btn btn-sm btn-info">
+                            <i class="fas fa-eye"></i> View
+                        </a>
+                        {% if status == 'pending' %}
+                            <a href="{% url 'procurement:request_approve' request.pk %}" class="btn btn-sm btn-success">
+                                <i class="fas fa-check"></i> Review
+                            </a>
+                        {% endif %}
+                        {% if status == 'approved' %}
+                            <a href="{% url 'procurement:quotation_create' request.pk %}" class="btn btn-sm btn-primary">
+                                <i class="fas fa-plus"></i> Add Quotation
+                            </a>
+                        {% endif %}
+                        {% if request.purchase_orders.exists %}
+                            <a href="{% url 'procurement:po_pdf' request.purchase_orders.first.id %}" class="btn btn-sm btn-secondary" target="_blank">
+                                <i class="fas fa-file-pdf"></i> View PO
+                            </a>
+                        {% endif %}
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+<p class="text-center">No {{ status }} requests found.</p>
+{% endif %}

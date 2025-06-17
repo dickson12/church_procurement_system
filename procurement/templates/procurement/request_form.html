@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Create Purchase Request</h6>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        {% if form.errors %}
+                        <div class="alert alert-danger">
+                            <h6 class="mb-0"></h6>Please correct the following errors:</h6>
+                            <ul class="mb-0 mt-2">
+                                {% for field in form %}
+                                    {% for error in field.errors %}
+                                        <li>{{ field.label }}: {{ error }}</li>
+                                    {% endfor %}
+                                {% endfor %}
+                                {% for error in form.non_field_errors %}
+                                    <li>{{ error }}</li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                        {% endif %}
+
+                        <div class="mb-3">
+                            <label for="id_title" class="form-label">Title</label>
+                            <input type="text" name="title" maxlength="200" class="form-control {% if form.title.errors %}is-invalid{% endif %}" 
+                                   id="id_title" required value="{{ form.title.value|default:'' }}">
+                            {% if form.title.errors %}
+                            <div class="invalid-feedback">
+                                {{ form.title.errors|join:", " }}
+                            </div>
+                            {% endif %}
+                            {% if form.title.help_text %}
+                            <small class="form-text text-muted">{{ form.title.help_text }}</small>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="id_department" class="form-label">Department</label>
+                            <input type="text" name="department" maxlength="100" class="form-control {% if form.department.errors %}is-invalid{% endif %}" 
+                                   id="id_department" required value="{{ form.department.value|default:'' }}">
+                            {% if form.department.errors %}
+                            <div class="invalid-feedback">
+                                {{ form.department.errors|join:", " }}
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="id_description" class="form-label">Description</label>
+                            <textarea name="description" rows="4" class="form-control {% if form.description.errors %}is-invalid{% endif %}" 
+                                      id="id_description" required>{{ form.description.value|default:'' }}</textarea>
+                            {% if form.description.errors %}
+                            <div class="invalid-feedback">
+                                {{ form.description.errors|join:", " }}
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save"></i> Submit Request
+                            </button>
+                            <a href="{% url 'procurement:request_list' %}" class="btn btn-secondary">
+                                <i class="fas fa-times"></i> Cancel
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

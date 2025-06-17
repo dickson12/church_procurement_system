@@ -1,0 +1,100 @@
+{% extends 'base.html' %}
+
+{% block title %}Compare Quotations - {{ request.title }}{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Quotation Comparison</h2>
+    <div class="card mb-4">
+        <div class="card-header">
+            <h4>Purchase Request Details</h4>
+        </div>
+        <div class="card-body">
+            <p><strong>Title:</strong> {{ request.title }}</p>
+            <p><strong>Description:</strong> {{ request.description }}</p>
+            <p><strong>Department:</strong> {{ request.department }}</p>
+            <p><strong>Date Required:</strong> {{ request.date_required|date:"F j, Y" }}</p>
+        </div>
+    </div>
+
+    {% if quotations %}
+        <div class="table-responsive">
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>Criteria</th>
+                        {% for quotation in quotations %}
+                            <th>{{ quotation.supplier.name }}</th>
+                        {% endfor %}
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Total Amount</strong></td>
+                        {% for quotation in quotations %}
+                            <td>${{ quotation.total_amount|floatformat:2 }}</td>
+                        {% endfor %}
+                    </tr>
+                    <tr>
+                        <td><strong>Delivery Time</strong></td>
+                        {% for quotation in quotations %}
+                            <td>{{ quotation.delivery_time }} days</td>
+                        {% endfor %}
+                    </tr>
+                    <tr>
+                        <td><strong>Payment Terms</strong></td>
+                        {% for quotation in quotations %}
+                            <td>{{ quotation.payment_terms }}</td>
+                        {% endfor %}
+                    </tr>
+                    <tr>
+                        <td><strong>Validity Period</strong></td>
+                        {% for quotation in quotations %}
+                            <td>{{ quotation.validity_period }} days</td>
+                        {% endfor %}
+                    </tr>
+                    <tr>
+                        <td><strong>Date Submitted</strong></td>
+                        {% for quotation in quotations %}
+                            <td>{{ quotation.created_at|date:"F j, Y" }}</td>
+                        {% endfor %}
+                    </tr>
+                    <tr>
+                        <td><strong>Notes</strong></td>
+                        {% for quotation in quotations %}
+                            <td>{{ quotation.notes|default:"-" }}</td>
+                        {% endfor %}
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="mt-4">
+            {% if can_select_quotation %}
+                <form method="post" action="{% url 'procurement:select_quotation' request.id %}">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <label for="selected_quotation">Select Best Quotation:</label>
+                        <select name="quotation_id" id="selected_quotation" class="form-control mb-3">
+                            {% for quotation in quotations %}
+                                <option value="{{ quotation.id }}">
+                                    {{ quotation.supplier.name }} - ${{ quotation.total_amount|floatformat:2 }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                        <button type="submit" class="btn btn-primary">Select Quotation</button>
+                    </div>
+                </form>
+            {% endif %}
+        </div>
+    {% else %}
+        <div class="alert alert-warning">
+            No quotations have been submitted for this request yet.
+        </div>
+    {% endif %}
+
+    <div class="mt-4">
+        <a href="{% url 'procurement:request_detail' request.id %}" class="btn btn-secondary">Back to Request</a>
+    </div>
+</div>
+{% endblock %}

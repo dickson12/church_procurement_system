@@ -1,0 +1,96 @@
+{% extends 'base.html' %}
+
+{% block title %}Create Purchase Order - {{ purchase_request.title }}{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">Create Purchase Order</h4>
+                </div>
+                <div class="card-body">
+                    <!-- Purchase Request Details -->
+                    <div class="mb-4">
+                        <h5>Purchase Request Details</h5>
+                        <div class="table-responsive">
+                            <table class="table table-bordered">
+                                <tr>
+                                    <th style="width: 30%">Title</th>
+                                    <td>{{ purchase_request.title }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Department</th>
+                                    <td>{{ purchase_request.department }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Requester</th>
+                                    <td>{{ purchase_request.requester }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Status</th>
+                                    <td><span class="badge bg-info">{{ purchase_request.get_status_display }}</span></td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Purchase Order Form -->
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        <div class="mb-3">
+                            <label for="id_selected_quotation" class="form-label">Select Quotation</label>
+                            {{ form.selected_quotation.errors }}
+                            {{ form.selected_quotation }}
+                            {% if form.selected_quotation.help_text %}
+                                <div class="form-text">{{ form.selected_quotation.help_text }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="id_negotiated_price" class="form-label">Negotiated Price</label>
+                            {{ form.negotiated_price.errors }}
+                            {{ form.negotiated_price }}
+                            {% if form.negotiated_price.help_text %}
+                                <div class="form-text">{{ form.negotiated_price.help_text }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="id_terms" class="form-label">Terms and Conditions</label>
+                            {{ form.terms.errors }}
+                            {{ form.terms }}
+                            {% if form.terms.help_text %}
+                                <div class="form-text">{{ form.terms.help_text }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <a href="{% url 'procurement:request_detail' purchase_request.pk %}" class="btn btn-secondary me-md-2">Cancel</a>
+                            <button type="submit" class="btn btn-primary">Create Purchase Order</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Javascript to handle quotation selection -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const quotationSelect = document.getElementById('id_selected_quotation');
+    const priceInput = document.getElementById('id_negotiated_price');
+
+    quotationSelect.addEventListener('change', function() {
+        const selectedOption = this.options[this.selectedIndex];
+        const quotationPrice = selectedOption.getAttribute('data-price');
+        if (quotationPrice) {
+            priceInput.value = quotationPrice;
+        }
+    });
+});
+</script>
+{% endblock %}
