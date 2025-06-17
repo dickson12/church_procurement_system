@@ -1,41 +1,12 @@
-# Core Django dependencies
-Django==4.2.23
 asgiref==3.8.1
-sqlparse==0.5.3
-typing_extensions==4.14.0
-
-# Form handling and UI
-django-crispy-forms==2.4
+chardet==5.2.0
 crispy-bootstrap5==2025.6
-
-# Filtering and model utilities
+Django==4.2.23
+django-crispy-forms==2.4
 django-filter==25.1
 django-model-utils==5.0.0
-
-# Email handling
-django-sendgrid-v5==1.2.2  # For improved email delivery
-
-# Image handling
-Pillow==11.2.1  # For image processing and handling
-
-# PDF and Excel generation
-reportlab==4.4.1  # For PDF generation
-openpyxl==3.1.2  # For Excel file handling
-xlsxwriter==3.1.9  # Alternative Excel writer
-
-# Character encoding detection
-chardet==5.2.0
-
-# Development and testing dependencies
-django-debug-toolbar==4.2.0  # Debug toolbar for development
-coverage==7.3.2  # For test coverage reporting
-pytest==7.4.3  # For testing
-pytest-django==4.7.0  # Django test integration
-
-# Security
-django-cors-headers==4.3.1  # For handling Cross-Origin Resource Sharing (CORS)
-python-dotenv==1.0.0  # For environment variable management
-
-# Utilities
-pytz==2023.3.post1  # Timezone support
-python-dateutil==2.8.2  # Date utilities
+pillow==11.2.1
+psycopg2-binary==2.9.10
+reportlab==4.4.1
+sqlparse==0.5.3
+typing_extensions==4.14.0

@@ -60,7 +60,7 @@ A comprehensive web-based procurement and asset management system designed speci
 
 1. Clone the repository
 ```bash
-git clone https://github.com/yourusername/Church_procurement_System.git
+git clone https://github.com/dickson12/Church_procurement_System.git
 cd Church_procurement_System
 ```
 
@@ -154,7 +154,7 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 ## 👥 Authors
 
-- Your Name - *Initial work*
+- Dickson Godwin
 
 ## 🙏 Acknowledgments
 
@@ -164,7 +164,7 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 ## 📞 Support
 
-For support, email your-email@example.com or create an issue in the GitHub repository.
+For support, email dicksongodwin.dg@gmail.com or create an issue in the GitHub repository.
 
 ---
 
