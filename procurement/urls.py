@@ -5,6 +5,7 @@ app_name = 'procurement'
 
 urlpatterns = [
     path('', dashboard_views.DashboardView.as_view(), name='dashboard'),
+    path('profile/', views.UserProfileView.as_view(), name='profile'),
     path('requests/', views.PurchaseRequestListView.as_view(), name='request_list'),
     path('requests/new/', views.PurchaseRequestCreateView.as_view(), name='request_create'),
     path('requests/<int:pk>/', views.PurchaseRequestDetailView.as_view(), name='request_detail'),

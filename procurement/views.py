@@ -31,14 +31,36 @@ class PurchaseRequestListView(LoginRequiredMixin, ListView):
 
     def get_queryset(self):
         queryset = super().get_queryset().prefetch_related('purchase_orders')
+        
+        # Get status filter from query parameters
+        status = self.request.GET.get('status')
+        if status:
+            queryset = queryset.filter(status=status)
+
         if not self.request.user.groups.filter(name='Management').exists():
             # Regular users can only see their own requests
             queryset = queryset.filter(requester=self.request.user.get_full_name())
+            
         return queryset
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['can_approve'] = self.request.user.groups.filter(name='Management').exists()
+        
+        # Get status from query parameters
+        status = self.request.GET.get('status', 'ALL')
+        context['current_status'] = status
+        
+        # Set page title based on status
+        status_titles = {
+            'PENDING': 'Pending Approvals',
+            'IN_PROGRESS': 'In Progress Requests',
+            'APPROVED': 'Approved Requests',
+            'COMPLETED': 'Completed Requests',
+            'ALL': 'All Requests'
+        }
+        context['page_title'] = status_titles.get(status, 'All Requests')
+        
         return context
 
 class PurchaseRequestCreateView(LoginRequiredMixin, CreateView):
@@ -195,3 +217,11 @@ class SelectQuotationView(LoginRequiredMixin, View):
         except Quotation.DoesNotExist:
             messages.error(request, 'Invalid quotation selected.')
             return redirect('procurement:quotation_comparison', pk=pk)
+
+class UserProfileView(LoginRequiredMixin, UpdateView):
+    template_name = 'procurement/profile.html'
+    fields = ['first_name', 'last_name', 'email']
+    success_url = reverse_lazy('procurement:profile')
+
+    def get_object(self):
+        return self.request.user

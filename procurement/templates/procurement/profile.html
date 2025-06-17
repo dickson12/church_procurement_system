@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-header">
+                    <h6 class="m-0 font-weight-bold text-primary">User Profile</h6>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label for="id_first_name" class="form-label">First Name</label>
+                            {{ form.first_name.errors }}
+                            <input type="text" name="first_name" value="{{ form.first_name.value|default:'' }}" 
+                                   class="form-control" id="id_first_name">
+                        </div>
+                        <div class="mb-3">
+                            <label for="id_last_name" class="form-label">Last Name</label>
+                            {{ form.last_name.errors }}
+                            <input type="text" name="last_name" value="{{ form.last_name.value|default:'' }}" 
+                                   class="form-control" id="id_last_name">
+                        </div>
+                        <div class="mb-3">
+                            <label for="id_email" class="form-label">Email</label>
+                            {{ form.email.errors }}
+                            <input type="email" name="email" value="{{ form.email.value|default:'' }}" 
+                                   class="form-control" id="id_email">
+                        </div>
+                        <div class="mb-3">
+                            <strong>Groups:</strong>
+                            <ul class="list-unstyled">
+                                {% for group in user.groups.all %}
+                                    <li><span class="badge bg-primary">{{ group.name }}</span></li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <button type="submit" class="btn btn-primary">Update Profile</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
