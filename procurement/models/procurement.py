@@ -1,5 +1,4 @@
 from django.db import models
-from .models.asset import Asset, AssetCategory, AssetCheckout, MaintenanceRecord
 from django.core.exceptions import ValidationError
 from django.utils import timezone
 from model_utils import FieldTracker
@@ -99,85 +98,23 @@ class PurchaseOrder(models.Model):
         self.request.save()
 
 class GoodsReceivedNote(models.Model):
-    INSPECTION_STATUS_CHOICES = [
-        ('PENDING', 'Pending Inspection'),
-        ('ACCEPTED', 'Accepted'),
-        ('REJECTED', 'Rejected'),
-        ('PARTIALLY_ACCEPTED', 'Partially Accepted')
-    ]
-
-    purchase_order = models.ForeignKey(PurchaseOrder, on_delete=models.CASCADE, related_name='goods_received_notes')
+    purchase_order = models.ForeignKey(PurchaseOrder, on_delete=models.CASCADE)
     received_by = models.CharField(max_length=100)
     date_received = models.DateTimeField()
     remarks = models.TextField(blank=True)
-    inspection_status = models.CharField(
-        max_length=20,
-        choices=INSPECTION_STATUS_CHOICES,
-        default='PENDING'
-    )
-    inspection_date = models.DateTimeField(null=True, blank=True)
-    inspector = models.CharField(max_length=100, null=True, blank=True)
-    inspection_notes = models.TextField(blank=True)
-    rejection_reasons = models.TextField(blank=True)
 
     def __str__(self):
-        return f"GRN-{self.id} - {self.purchase_order}"
-
-    def accept_delivery(self, inspector):
-        """Mark the delivery as accepted after inspection"""
-        self.inspection_status = 'ACCEPTED'
-        self.inspection_date = timezone.now()
-        self.inspector = inspector
-        self.save()
-
-    def reject_delivery(self, inspector, reasons):
-        """Reject the delivery with reasons"""
-        self.inspection_status = 'REJECTED'
-        self.inspection_date = timezone.now()
-        self.inspector = inspector
-        self.rejection_reasons = reasons
-        self.save()
-
-    def partial_accept(self, inspector, notes):
-        """Mark delivery as partially accepted with notes"""
-        self.inspection_status = 'PARTIALLY_ACCEPTED'
-        self.inspection_date = timezone.now()
-        self.inspector = inspector
-        self.inspection_notes = notes
-        self.save()
+        return f"GRN-{self.id} for {self.purchase_order}"
 
 class SupplierPerformance(models.Model):
-    supplier = models.CharField(max_length=200)
-    score = models.IntegerField(choices=[(i, i) for i in range(1, 6)])  # 1-5 rating
+    supplier_name = models.CharField(max_length=200)
+    rating = models.IntegerField(choices=[(i, str(i)) for i in range(1, 6)])  # 1 to 5 rating
     comments = models.TextField()
-    date_evaluated = models.DateTimeField(auto_now_add=True)
-    purchase_order = models.ForeignKey(
-        PurchaseOrder,
-        on_delete=models.SET_NULL,
-        null=True,
-        related_name='performance_evaluations'
-    )
-    evaluator = models.CharField(max_length=100)
-    delivery_timeliness = models.IntegerField(choices=[(i, i) for i in range(1, 6)])
-    quality_rating = models.IntegerField(choices=[(i, i) for i in range(1, 6)])
-    communication_rating = models.IntegerField(choices=[(i, i) for i in range(1, 6)])
+    review_date = models.DateTimeField(auto_now_add=True)
+    reviewed_by = models.CharField(max_length=100)
 
     def __str__(self):
-        return f"{self.supplier} - Score: {self.score}"
+        return f"{self.supplier_name} - Rating: {self.rating}"
 
-    def calculate_overall_score(self):
-        """Calculate the overall score based on different criteria"""
-        weights = {
-            'delivery': 0.3,
-            'quality': 0.4,
-            'communication': 0.3
-        }
-        
-        weighted_score = (
-            self.delivery_timeliness * weights['delivery'] +
-            self.quality_rating * weights['quality'] +
-            self.communication_rating * weights['communication']
-        )
-        
-        self.score = round(weighted_score)
-        self.save()
+    class Meta:
+        ordering = ['-review_date']

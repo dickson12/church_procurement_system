@@ -258,6 +258,15 @@
                 <a href="{% url 'procurement:request_list' %}?status=IN_PROGRESS" class="list-group-item {% if 'status=IN_PROGRESS' in request.get_full_path %}active{% endif %}">
                     <i class="fas fa-spinner"></i> In Progress
                 </a>
+                <div class="sidebar-heading" style="font-size: 0.8rem; padding-top: 2rem;">
+                    ASSET MANAGEMENT
+                </div>
+                <a href="{% url 'procurement:asset_list' %}" class="list-group-item {% if '/assets/' in request.path %}active{% endif %}">
+                    <i class="fas fa-boxes"></i> Assets
+                </a>
+                <a href="{% url 'procurement:asset_create' %}" class="list-group-item {% if '/assets/create/' in request.path %}active{% endif %}">
+                    <i class="fas fa-plus"></i> Add Asset
+                </a>
                 <a href="#" class="list-group-item">
                     <i class="fas fa-chart-bar"></i> Reports
                 </a>
